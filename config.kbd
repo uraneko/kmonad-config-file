@@ -2,10 +2,11 @@
 	input (device-file "/dev/input/by-path/platform-i8042-serio-0-event-kbd")
 	output (uinput-sink "kmonad_senpai")
 	fallthrough true
+	allow-cmd true
 )
 
 
-  (defsrc
+(defsrc
   esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12  prnt  del
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc				home
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \     		pgup
@@ -14,12 +15,46 @@
   lctl lmet lalt           spc            lsgt ralt rmet  rctl            left down rght
 )
 
+(defalias 
+	;; shutdown/reboot commands 
+	shut_down (cmd-button "shutdown \"+8\"")
+	reboot (cmd-button "reboot -n")
 
-  (deflayer base
-  esc  f1   f2   f3   f4   f5   f6   f7   f8   f9   caps  f11 lsgt prnt  del
+	;; lshift + shut_down -> reboot binding
+	boot_ctl (multi-tap 500 @shut_down @reboot)
+
+	;; debugging/testing commands 
+	;; off ;; test1 (cmd-button "notify-send 'cmd button is working'")
+	;; off ;; test2 (cmd-button "notify-send 'cmd button executed'")
+
+	;; layer switches 
+	;; off ;; vim_kb (layer-switch vim)
+	;; off ;; base_kb (layer-switch base)
+
+	;; layer switches super bindings
+	;; tap-hold-next-release: if anything is pressed before the timeout duration is reached 
+	;; then hold event is cancelled
+	;; off ;; spr_vim (tap-hold-next-release 1000 lmeta @vim_kb)
+	;; off ;; spr_base (tap-hold-next-release 1000 lmeta @base_kb)
+
+	;; escape key rctrl binding
+	rctl_esc (tap-hold-next-release 1000 esc rctl)
+)
+
+(deflayer base
+  @boot_ctl f1   f2   f3   f4   f5   f6   f7   f8   f9   caps  f11 lsgt prnt  del
   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc				home
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \     		pgup
   f10  a    s    d    f    g    h    j    k    l    ;    '    ret					pgdn
   lsft z    x    c    v    b    n    m    ,    .    /    rsft                 up   end    
-  lctl lmet lalt           spc            f12  ralt end  rctl            left down rght
+  lctl lmeta lalt         spc            f12  ralt end  @rctl_esc left down rght
 )
+
+;; (deflayer vim
+;;   @test2 f1   f2   f3   f4   f5   f6   f7   f8   f9   caps  f11 lsgt prnt  del
+;;   grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc				home
+;;   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \     		pgup
+;;   f10  a    s    d    f    g    h    j    k    l    ;    '    ret					pgdn
+;;   lsft z    x    c    v    b    n    m    ,    .    /    rsft                 up   end    
+;;   lctl @spr_base lalt        spc            f12  ralt end  @rctl_esc         left down rght
+;; )
