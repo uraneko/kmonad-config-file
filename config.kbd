@@ -17,7 +17,7 @@
 
 (defalias 
 	;; shutdown/reboot commands 
-	shut_down (cmd-button "shutdown \"+8\"")
+	shut_down (cmd-button "shutdown \"+1\"")
 	reboot (cmd-button "reboot -n")
 
 	;; lshift + shut_down -> reboot binding
